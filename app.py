@@ -695,13 +695,7 @@ with tab2:
                     lambda x: f"({abs(x):.1f}%)" if isinstance(x,(int,float)) and x<0
                     else (f"{x:.1f}%" if isinstance(x,(int,float)) else x))
 
-        def style_brackets(val):
-            if isinstance(val, str) and val.startswith('(') and val.endswith(')'):
-                return 'color:#dc2626; font-weight:600'
-            return 'color:#0f172a'
-
-        st.dataframe(combined.style.map(style_brackets),
-                     use_container_width=True, hide_index=True)
+        st.dataframe(combined, use_container_width=True, hide_index=True)
 
     col_a, col_b = st.columns(2)
     with col_a:
@@ -809,13 +803,8 @@ with tab3:
     pnl_display['Var ($)'] = pnl_display['Var ($)'].apply(fmt_amt)
     pnl_display['Var (%)'] = pnl_display['Var (%)'].apply(fmt_pct)
 
-    def style_pnl(val):
-        if isinstance(val, str) and val.startswith('(') and val.endswith(')'):
-            return 'color: #dc2626; font-weight:600'
-        return 'color: #0f172a'
-
-    styled = pnl_display.rename(columns={'Description':'P&L Line'}).style.map(style_pnl)
-    st.dataframe(styled, use_container_width=True, hide_index=True, height=380)
+    st.dataframe(pnl_display.rename(columns={'Description':'P&L Line'}),
+                 use_container_width=True, hide_index=True, height=380)
 
     chart_data = pnl_comp[pnl_comp['Description'].isin(sel_descs)].copy()
     chart_data = chart_data[chart_data[[col_curr,col_prev]].abs().max(axis=1)>0]
