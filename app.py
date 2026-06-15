@@ -688,11 +688,11 @@ with tab2:
         for col in combined.columns:
             if '$ Var' in col or 'Rent' in col:
                 combined[col] = combined[col].apply(
-                    lambda x: f"({abs(x):,.0f})" if isinstance(x,(int,float)) and x<0
+                    lambda x: f"🔴 ({abs(x):,.0f})" if isinstance(x,(int,float)) and x<0
                     else (f"{x:,.0f}" if isinstance(x,(int,float)) else x))
             elif '% Var' in col:
                 combined[col] = combined[col].apply(
-                    lambda x: f"({abs(x):.1f}%)" if isinstance(x,(int,float)) and x<0
+                    lambda x: f"🔴 ({abs(x):.1f}%)" if isinstance(x,(int,float)) and x<0
                     else (f"{x:.1f}%" if isinstance(x,(int,float)) else x))
 
         st.dataframe(combined, use_container_width=True, hide_index=True)
@@ -781,8 +781,8 @@ with tab3:
     pnl_comp = curr_agg.merge(prev_agg, on='Description', how='outer').fillna(0)
 
 
-    def fmt_amt(x): return f"({abs(x):,.0f})" if x<0 else f"{x:,.0f}"
-    def fmt_pct(x): return f"({abs(x):.1f}%)" if x<0 else f"{x:.1f}%"
+    def fmt_amt(x): return f"🔴 ({abs(x):,.0f})" if x<0 else f"{x:,.0f}"
+    def fmt_pct(x): return f"🔴 ({abs(x):.1f}%)" if x<0 else f"{x:.1f}%"
 
     # Maintain PnL order
     pnl_comp['_ord'] = pnl_comp['Description'].map({d:i for i,d in enumerate(all_descs_ordered)})
