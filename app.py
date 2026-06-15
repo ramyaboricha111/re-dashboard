@@ -106,11 +106,10 @@ is_dark = st.get_option("theme.base") != "light"
 NEG_COLOR = "#ff6b6b" if is_dark else "#dc2626"
 
 def styled_df(df):
-    TEXT_COLOR = "#ffffff" if is_dark else "#000000"
     def color_val(val):
         if isinstance(val, str) and val.startswith('(') and val.endswith(')'):
             return f'color: {NEG_COLOR}; font-weight: 600'
-        return f'color: {TEXT_COLOR}'
+        return ''
     return df.style.map(color_val)
 
 # ── DARK PLOT DEFAULTS ────────────────────────────────────────────────────────
