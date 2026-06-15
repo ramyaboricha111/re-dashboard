@@ -673,7 +673,7 @@ with tab2:
                 return 'color:#dc2626; font-weight:600'
             return 'color:#0f172a'
 
-        st.dataframe(combined.style.applymap(style_brackets),
+        st.dataframe(combined.style.map(style_brackets),
                      use_container_width=True, hide_index=True)
 
     col_a, col_b = st.columns(2)
@@ -787,7 +787,7 @@ with tab3:
             return 'color: #dc2626; font-weight:600'
         return 'color: #0f172a'
 
-    styled = pnl_display.rename(columns={'Description':'P&L Line'}).style.applymap(style_pnl)
+    styled = pnl_display.rename(columns={'Description':'P&L Line'}).style.map(style_pnl)
     st.dataframe(styled, use_container_width=True, hide_index=True, height=380)
 
     chart_data = pnl_comp[pnl_comp['Description'].isin(sel_descs)].copy()
