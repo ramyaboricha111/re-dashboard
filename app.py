@@ -101,6 +101,18 @@ footer { visibility:hidden; }
 </style>
 """, unsafe_allow_html=True)
 
+# Theme-aware negative color
+is_dark = st.get_option("theme.base") != "light"
+NEG_COLOR = "#ff6b6b" if is_dark else "#dc2626"
+
+def styled_df(df):
+    TEXT_COLOR = "#ffffff" if is_dark else "#000000"
+    def color_val(val):
+        if isinstance(val, str) and val.startswith('(') and val.endswith(')'):
+            return f'color: {NEG_COLOR}; font-weight: 600'
+        return f'color: {TEXT_COLOR}'
+    return df.style.map(color_val)
+
 # ── DARK PLOT DEFAULTS ────────────────────────────────────────────────────────
 PLOT_BG    = '#161b22'
 PAPER_BG   = '#0d1117'
@@ -340,7 +352,8 @@ with tab1:
 
     c1,c2,c3,c4,c5 = st.columns(5)
     c1.metric("Total Units",     f"{int(total_units):,}")
-    c2.metric("Vacant Units",    f"{total_vacant}",
+    vac_pct = (total_vacant / total_units * 100) if total_units > 0 else 0
+    c2.metric("Vacant Units",    f"{total_vacant}  ({vac_pct:.1f}%)",
               delta=f"{delta_vacant:+d} units vs prev day", delta_color="inverse")
     c3.metric("Units Ready",     f"{total_ready}")
     c4.metric("Units Not Ready", f"{total_notready}")
@@ -688,14 +701,14 @@ with tab2:
         for col in combined.columns:
             if '$ Var' in col or 'Rent' in col:
                 combined[col] = combined[col].apply(
-                    lambda x: f"🔴 ({abs(x):,.0f})" if isinstance(x,(int,float)) and x<0
+                    lambda x: f"({abs(x):,.0f})" if isinstance(x,(int,float)) and x<0
                     else (f"{x:,.0f}" if isinstance(x,(int,float)) else x))
             elif '% Var' in col:
                 combined[col] = combined[col].apply(
-                    lambda x: f"🔴 ({abs(x):.1f}%)" if isinstance(x,(int,float)) and x<0
+                    lambda x: f"({abs(x):.1f}%)" if isinstance(x,(int,float)) and x<0
                     else (f"{x:.1f}%" if isinstance(x,(int,float)) else x))
 
-        st.dataframe(combined, use_container_width=True, hide_index=True)
+        st.dataframe(styled_df(combined), use_container_width=True, hide_index=True)
 
     col_a, col_b = st.columns(2)
     with col_a:
@@ -781,8 +794,8 @@ with tab3:
     pnl_comp = curr_agg.merge(prev_agg, on='Description', how='outer').fillna(0)
 
 
-    def fmt_amt(x): return f"🔴 ({abs(x):,.0f})" if x<0 else f"{x:,.0f}"
-    def fmt_pct(x): return f"🔴 ({abs(x):.1f}%)" if x<0 else f"{x:.1f}%"
+    def fmt_amt(x): return f"({abs(x):,.0f})" if x<0 else f"{x:,.0f}"
+    def fmt_pct(x): return f"({abs(x):.1f}%)" if x<0 else f"{x:.1f}%"
 
     # Maintain PnL order
     pnl_comp['_ord'] = pnl_comp['Description'].map({d:i for i,d in enumerate(all_descs_ordered)})
@@ -803,7 +816,7 @@ with tab3:
     pnl_display['Var ($)'] = pnl_display['Var ($)'].apply(fmt_amt)
     pnl_display['Var (%)'] = pnl_display['Var (%)'].apply(fmt_pct)
 
-    st.dataframe(pnl_display.rename(columns={'Description':'P&L Line'}),
+    st.dataframe(styled_df(pnl_display.rename(columns={'Description':'P&L Line'})),
                  use_container_width=True, hide_index=True, height=380)
 
     chart_data = pnl_comp[pnl_comp['Description'].isin(sel_descs)].copy()
