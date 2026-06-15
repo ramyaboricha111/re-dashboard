@@ -8,6 +8,33 @@ import os, shutil, tempfile
 st.set_page_config(page_title="Silver Star RE · Analytics", page_icon="🏢",
                    layout="wide", initial_sidebar_state="collapsed")
 
+# ── PASSWORD PROTECTION ───────────────────────────────────────────────────────
+def check_password():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+    if st.session_state.authenticated:
+        return True
+    st.markdown("""
+    <div style='display:flex;flex-direction:column;align-items:center;justify-content:center;
+                height:80vh;'>
+        <h1 style='color:#f1f5f9;font-size:28px;margin-bottom:8px;'>🏢 Silver Star RE</h1>
+        <p style='color:#64748b;margin-bottom:32px;'>Analytics Dashboard</p>
+    </div>
+    """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([2,1,2])
+    with col2:
+        pwd = st.text_input("Password", type="password", placeholder="Enter password")
+        if st.button("Login", use_container_width=True):
+            if pwd == "SilverStar2024!":
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("Incorrect password")
+    return False
+
+if not check_password():
+    st.stop()
+
 # ── DARK THEME CSS ─────────────────────────────────────────────────────────
 st.markdown("""
 <style>
